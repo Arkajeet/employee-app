@@ -1,5 +1,5 @@
 using { employeeapp as db } from '../db/schema';
-
+@odata.draft.enabled
 service EmployeeService {
 
     @restrict: [
