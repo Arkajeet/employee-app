@@ -1,0 +1,159 @@
+_schema-version: 3.3.0
+ID: employee-app
+description: A simple CAP project.
+version: 1.0.0
+modules:
+- name: employee-app-srv
+  type: nodejs
+  path: gen/srv
+  requires:
+  - name: employee-app-auth
+  - name: employee-app-db
+  provides:
+  - name: srv-api
+    properties:
+      srv-url: ${default-url}
+  parameters:
+    buildpack: nodejs_buildpack
+    instances: 1
+  build-parameters:
+    builder: npm-ci
+- name: employee-app-db-deployer
+  type: hdb
+  path: gen/db
+  requires:
+  - name: employee-app-db
+  parameters:
+    buildpack: nodejs_buildpack
+- name: employee-app-destination-content
+  type: com.sap.application.content
+  requires:
+  - name: employee-app-destination-service
+    parameters:
+      content-target: true
+  - name: employee-app_html_repo_host
+    parameters:
+      service-key:
+        name: employee-app_html_repo_host-key
+  - name: employee-app-auth
+    parameters:
+      service-key:
+        name: employee-app-auth-key
+  parameters:
+    content:
+      instance:
+        destinations:
+        - Name: empappmanaged_employee_app_html_repo_host
+          ServiceInstanceName: employee-app-html5-app-host-service
+          ServiceKeyName: employee-app_html_repo_host-key
+          sap.cloud.service: empappmanaged
+        - Authentication: OAuth2UserTokenExchange
+          Name: empappmanaged_employee_app_auth
+          ServiceInstanceName: employee-app-auth
+          ServiceKeyName: employee-app-auth-key
+          sap.cloud.service: empappmanaged
+        existing_destinations_policy: ignore
+  build-parameters:
+    no-source: true
+- name: employee-app-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: employee-app_html_repo_host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - empapp.zip
+      name: empapp
+      target-path: resources/
+- name: empapp
+  type: html5
+  path: app/empapp
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+resources:
+- name: employee-app-auth
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      oauth2-configuration:
+        credential-types:
+        - binding-secret
+        - x509
+      role-collections:
+      - description: generated
+        name: Viewer (employee-app ${org}-${space})
+        role-template-references:
+        - $XSAPPNAME.Viewer
+      - description: generated
+        name: Admin (employee-app ${org}-${space})
+        role-template-references:
+        - $XSAPPNAME.Admin
+      tenant-mode: dedicated
+      xsappname: employee-app-${org}-${space}
+    path: ./xs-security.json
+    service: xsuaa
+    service-plan: application
+- name: employee-app-db
+  type: com.sap.xs.hdi-container
+  parameters:
+    service: hana
+    service-plan: hdi-shared
+- name: employee-app-destination-service
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: true
+ #This is added 
+      init_data:
+        instance:
+          destinations:
+          - Authentication: NoAuthentication
+            HTML5.DynamicDestination: true
+            HTML5.ForwardAuthToken: true
+            Name: empappdest
+            ProxyType: Internet
+            Type: HTTP
+            URL: ~{srv-api/srv-url}
+ #This is added 
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+      version: 1.0.0
+#Added    
+    existing_destinations_policy: update
+#Added    
+    service: destination
+#Commented    
+#    service-name: employee-app-destination-service
+#Commented   
+    service-plan: lite
+ #This is added 
+  requires:
+  - name: srv-api
+ #This is added 
+- name: employee-app_html_repo_host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: employee-app-html5-app-host-service
+    service-plan: app-host
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true
+build-parameters:
+  before-all:
+  - builder: custom
+    commands:
+    - npm ci
+    - npx cds build --production
