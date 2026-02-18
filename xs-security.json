@@ -6,6 +6,14 @@
     {
       "name": "uaa.user",
       "description": "UAA"
+    },
+    {
+      "name": "$XSAPPNAME.Admin",
+      "description": "Admin access"
+    },
+    {
+      "name": "$XSAPPNAME.Viewer",
+      "description": "Viewer access"
     }
   ],
   "role-templates": [
@@ -15,6 +23,21 @@
       "scope-references": [
         "uaa.user"
       ]
+    },
+    {
+      "name": "Admin",
+      "description": "Full access",
+      "scope-references": [
+        "$XSAPPNAME.Admin"
+      ]
+    },
+    {
+      "name": "Viewer",
+      "description": "Read only",
+      "scope-references": [
+        "$XSAPPNAME.Viewer"
+      ]
     }
+    
   ]
 }

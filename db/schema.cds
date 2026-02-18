@@ -1,6 +1,6 @@
 namespace employeeapp;
-
-entity Employees {
+using { cuid, managed } from '@sap/cds/common';
+entity Employees : cuid, managed  {
     key ID        : UUID;
         name      : String(100);
         role      : String(50);
