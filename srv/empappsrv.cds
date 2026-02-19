@@ -1,5 +1,5 @@
 using { employeeapp as db } from '../db/schema';
-@odata.draft.enabled
+
 service EmployeeService {
 
     @restrict: [
@@ -7,5 +7,6 @@ service EmployeeService {
         { grant: ['READ','CREATE', 'UPDATE', 'DELETE'], to: 'Admin' }
     ]
 @Capabilities.InsertRestrictions.Insertable: true
+@odata.draft.enabled
     entity Employee as projection on db.Employees;
 }
