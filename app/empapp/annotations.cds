@@ -29,29 +29,29 @@ annotate service.Employee with @(
         {
             $Type : 'UI.ReferenceFacet',
             ID : 'GeneratedFacet1',
-            Label : 'General Information',
+            Label : 'Employee Information',
             Target : '@UI.FieldGroup#GeneratedGroup',
         },
     ],
     UI.LineItem : [
         {
             $Type : 'UI.DataField',
-            Label : 'name',
+            Label : 'Employee Name',
             Value : name,
         },
         {
             $Type : 'UI.DataField',
-            Label : 'role',
+            Label : 'Designation',
             Value : role,
         },
         {
             $Type : 'UI.DataField',
-            Label : 'salary',
+            Label : 'Employee salary',
             Value : salary,
         },
         {
             $Type : 'UI.DataField',
-            Label : 'createdAt',
+            Label : 'Created At',
             Value : createdAt,
         },
     ],
