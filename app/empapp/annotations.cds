@@ -1,5 +1,9 @@
 using EmployeeService as service from '../../srv/empappsrv';
 annotate service.Employee with @(
+    UI.HeaderInfo : {
+    typeName: 'Employee',
+    typeNamePlural: 'Employees',
+                    },
     UI.FieldGroup #GeneratedGroup : {
         $Type : 'UI.FieldGroupType',
         Data : [
