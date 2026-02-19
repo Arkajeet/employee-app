@@ -6,7 +6,9 @@ service EmployeeService {
         { grant: 'READ', to: 'Viewer' },
         { grant: ['READ','CREATE', 'UPDATE', 'DELETE'], to: 'Admin' }
     ]
-@Capabilities.InsertRestrictions.Insertable: true
-@odata.draft.enabled
+
+
+    @odata.draft.enabled : true
     entity Employee as projection on db.Employees;
+    annotate EmployeeService.Employee with @odata.draft.enabled;
 }
